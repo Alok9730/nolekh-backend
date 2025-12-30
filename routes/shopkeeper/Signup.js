@@ -4,7 +4,7 @@ import Users from "../../model/AllUserSchema.js";
 
 const router = express.Router();
 
-router.post("/CustomerSignup", async (req, res) => {
+router.post("/CustomerSignup", async (req, res) => {//CustomerSignup
   const { username, email, password, phone,shopkeeperId } = req.body;
 
   try {
