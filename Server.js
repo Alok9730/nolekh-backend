@@ -27,6 +27,6 @@ app.use("/shop", shopkeeper);
 app.use("/User", customer);
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, "192.172.149.117", () =>
+app.listen(PORT, () =>
   console.log("server started:- " + PORT)
 );
