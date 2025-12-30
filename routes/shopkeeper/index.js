@@ -5,7 +5,7 @@ import RenameCustomer from '../../controllers/ShopKeeperController/RenameCustome
 
 
 import CustomerSignup from './Signup.js';
-import ShopkeeperSignup from './CustomerSignup.js';
+import ShopkeeperSignup from './ShopkeeperSignup.js';
 import login from './login.js';
 import AllCustomerList from '../../controllers/ShopKeeperController/AllCustomerList.js';
 import CustomerMonth from '../../controllers/ShopKeeperController/CustomerMonth.js';
@@ -24,8 +24,8 @@ const router = express.Router();
 
 
 
-router.use('/shopkeeper',login)
 router.use('/shopkeeper',ShopkeeperSignup); // shopkeeper SingUp underProcess
+router.use('/shopkeeper',login)
 
 router.use(verifyToken,authorizeRole("shopkeeper"));
 router.use('/shopkeeper',CustomerSignup)
