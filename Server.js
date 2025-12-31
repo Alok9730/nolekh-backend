@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -41,6 +41,6 @@ app.use("/shop", shopkeeper);
 app.use("/User", customer);
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () =>
+app.listen(PORT,() =>
   console.log("server started:- " + PORT)
 );

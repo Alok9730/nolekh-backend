@@ -5,9 +5,9 @@ import ProductEntry from "../../model/ProductEntrySchema.js";
 const router = express.Router();
 
 router.post("/updateStatus", async (req, res) => {
-    console.log("hitting")
   try {
     const { productEntryId, status } = req.body;
+    console.log(productEntryId,status);
 
     if (!productEntryId || !status) {
       return res.status(400).json({ message: "All fields required" });

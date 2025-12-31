@@ -13,6 +13,7 @@ import CustomerData from '../../controllers/ShopKeeperController/CustomerData.js
 import MonthCreation from "../../controllers/ShopKeeperController/MonthCreation.js";
 import AddCustomerData from '../../controllers/ShopKeeperController/AddEntry.js'; 
 //import ManuallyDataEntry from '../../controllers/ShopKeeperController/AddManuallyData.js';
+import EditEntry from '../../controllers/ShopKeeperController/EditEntry.js';
 import AiCustomerEntry from '../../controllers/ShopKeeperController/ShopkeeperAIDataEntry.js'
 import DeleteCustomer from '../../controllers/ShopKeeperController/DeleteCustomer.js';
 import DeleteCustomerMonth from '../../controllers/ShopKeeperController/DeleteCustomerMonth.js';
@@ -34,6 +35,7 @@ router.use('/shopkeeper',CustomerMonth)
 router.use('/shopkeeper',MonthCreation);
 router.use('/shopkeeper',AiCustomerEntry);
 router.use('/shopkeeper',CustomerData);
+router.use('/shopkeeper',EditEntry);
 router.use('/shopkeeper',AddCustomerData);
 router.use('/shopkeeper',RenameCustomer);
 router.use('/shopkeeper',DeleteCustomer);
