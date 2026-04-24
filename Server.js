@@ -41,6 +41,6 @@ app.use("/shop", shopkeeper);
 app.use("/User", customer);
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT,() =>
+app.listen(PORT,"10.96.37.234",() =>
   console.log("server started:- " + PORT)
 );

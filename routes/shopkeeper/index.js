@@ -11,8 +11,7 @@ import AllCustomerList from '../../controllers/ShopKeeperController/AllCustomerL
 import CustomerMonth from '../../controllers/ShopKeeperController/CustomerMonth.js';
 import CustomerData from '../../controllers/ShopKeeperController/CustomerData.js';
 import MonthCreation from "../../controllers/ShopKeeperController/MonthCreation.js";
-import AddCustomerData from '../../controllers/ShopKeeperController/AddEntry.js'; 
-//import ManuallyDataEntry from '../../controllers/ShopKeeperController/AddManuallyData.js';
+import ManuallyDataEntry from '../../controllers/ShopKeeperController/AddManuallyData.js';
 import EditEntry from '../../controllers/ShopKeeperController/EditEntry.js';
 import AiCustomerEntry from '../../controllers/ShopKeeperController/ShopkeeperAIDataEntry.js'
 import DeleteCustomer from '../../controllers/ShopKeeperController/DeleteCustomer.js';
@@ -25,7 +24,7 @@ const router = express.Router();
 
 
 
-router.use('/shopkeeper',ShopkeeperSignup); // shopkeeper SingUp underProcess
+router.use('/shopkeeper',ShopkeeperSignup);
 router.use('/shopkeeper',login)
 
 router.use(verifyToken,authorizeRole("shopkeeper"));
@@ -36,7 +35,6 @@ router.use('/shopkeeper',MonthCreation);
 router.use('/shopkeeper',AiCustomerEntry);
 router.use('/shopkeeper',CustomerData);
 router.use('/shopkeeper',EditEntry);
-router.use('/shopkeeper',AddCustomerData);
 router.use('/shopkeeper',RenameCustomer);
 router.use('/shopkeeper',DeleteCustomer);
 router.use('/shopkeeper',DeleteCustomerMonth);

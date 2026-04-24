@@ -15,7 +15,7 @@ const productEntrySchema = new mongoose.Schema(
     items: [
       {
         productName: String,
-        quantity: String,
+        quantity: Number,
         rate: Number,
       },
     ],
@@ -26,7 +26,7 @@ const productEntrySchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Paid", "Unpaid"],
-      default: "unpaid",
+      default: "Unpaid",
     },
     month: {
       type: String,
@@ -40,4 +40,7 @@ const productEntrySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+productEntrySchema.index({ shopkeeperId: 1, customerId: 1 });
+productEntrySchema.index({ shopkeeperId: 1, customerId: 1, month: 1 });
+productEntrySchema.index({ shopkeeperId: 1, customerId: 1, month: 1,date:1 });
 export default mongoose.model("ProductSchema", productEntrySchema);

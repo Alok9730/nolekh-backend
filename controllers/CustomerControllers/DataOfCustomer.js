@@ -3,15 +3,22 @@ import mongoose from "mongoose";
 import ProductEntry from "../../model/ProductEntrySchema.js";
 
 const router = express.Router();
-
 router.get("/Data", async (req, res) => {
   try {
     const { Month } = req.query;
-    const shopkeeperId = req.user.shopkeeperId;
+    const shopkeeperId = req.user.shopId;
     const customerId = req.user.id;
 
-    if (!customerId || !Month)
-      return res.status(404).json({ message: "customerId or month missing!" });
+    if (!customerId || !Month) {
+      return res.status(400).json({ message: "customerId or month missing!" });
+    }
+
+    if (
+      !mongoose.Types.ObjectId.isValid(customerId) ||
+      !mongoose.Types.ObjectId.isValid(shopkeeperId)
+    ) {
+      return res.status(400).json({ message: "Invalid IDs" });
+    }
 
     const Data = await ProductEntry.aggregate([
       {
@@ -22,13 +29,11 @@ router.get("/Data", async (req, res) => {
         },
       },
       {
-        $sort: {
-          date: -1,
-        },
+        $sort: { date: -1 },
       },
       {
         $project: {
-          status:1,
+          status: 1,
           items: 1,
           date: 1,
           totalAmount: {
@@ -42,14 +47,15 @@ router.get("/Data", async (req, res) => {
     ]);
 
     if (!Data.length) {
-      return res
-        .status(404)
-        .json({ message: "No data found for given month." });
+      return res.status(404).json({
+        message: "No data found for given month.",
+      });
     }
 
     res.status(200).json(Data);
+
   } catch (err) {
-    res.status(500).json({ Error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 export default router;

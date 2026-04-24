@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import ProductSchema from "../../model/ProductEntrySchema.js";
 
 const router = express.Router();
@@ -8,18 +9,21 @@ router.post("/NewMonthCreation", async (req, res) => {
     const { CustomerId } = req.body;
     const shopkeeperId = req.user.shopId;
 
+    if (req.user.role !== "shopkeeper") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
     if (!shopkeeperId || !CustomerId) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    if (!mongoose.Types.ObjectId.isValid(CustomerId)) {
+      return res.status(400).json({ message: "Invalid CustomerId" });
+    }
+
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const now = new Date();
     const month = `${monthNames[now.getMonth()]}${now.getFullYear()}`;
-
-    const existing = await ProductSchema.findOne({ shopkeeperId, customerId: CustomerId, month });
-    if (existing) {
-      return res.status(400).json({ message: "Month already exists" });
-    }
 
     const newEntry = await ProductSchema.create({
       shopkeeperId,
@@ -30,8 +34,20 @@ router.post("/NewMonthCreation", async (req, res) => {
       status: "Unpaid",
     });
 
-    res.status(201).json({ message: "New month created", data: newEntry });
+    res.status(201).json({
+      message: "New month created",
+      data: {
+        id: newEntry._id,
+        month: newEntry.month
+      }
+    });
+
   } catch (err) {
+
+    if (err.code === 11000) {
+      return res.status(400).json({ message: "Month already exists" });
+    }
+
     console.error(err.message);
     res.status(500).json({ message: "Server Error" });
   }

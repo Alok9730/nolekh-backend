@@ -1,20 +1,41 @@
 import express from "express";
-import UserSchema from "../../model/AllUserSchema.js";
+import mongoose from "mongoose";
+import Users from "../../model/AllUserSchema.js";
 
 const router = express.Router();
 
-router.delete("/customerDelete/:id", async (req, res) => {
+router.delete("/customer/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
 
-    const Exist = await UserSchema.findByIdAndDelete(id);
+    if (req.user.role !== "shopkeeper") {
+      return res.status(403).json({ message: "Access denied" });
+    }
 
-    if (!Exist) return res.status(400).json({ message: "User not exist" });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
 
-    res.status(201).json({ message: "User deleted Successfully!!" });
+    const deletedUser = await Users.findOneAndDelete({
+      _id: id,
+      shopkeeperId: req.user.shopId,
+      role: "customer",
+    });
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Customer deleted successfully",
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
 

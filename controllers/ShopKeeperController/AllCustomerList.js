@@ -6,17 +6,37 @@ const router = express.Router();
 router.get("/allCustomer", async (req, res) => {
   try {
     const shopkeeperId = req.user.shopId;
-    const shopkeeperRole = req.user.role;
-    if (shopkeeperRole !== "shopkeeper")
-      return res.status(404).json({ message: "not granted!!" });
-    const customerName = await Users.find(
-      { role: "customer", shopkeeperId: shopkeeperId },
-      { username: 1, _id: 1 ,createdAt:1}
-    );
-    res.status(201).json(customerName);
+    console.log(shopkeeperId)
+    const role = req.user.role;
+
+    if (role !== "shopkeeper") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+    const skip = (page - 1) * limit;
+
+    const customers = await Users.find(
+      { role: "customer", shopkeeperId }, 
+      { username: 1, createdAt: 1 }
+    )
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      page,
+      count: customers.length,
+      data: customers
+    });
+
   } catch (err) {
-    res.status(500).json({ message: "Internal Server Error!!" });
+    console.error(err);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-export default router;
+export default router

@@ -10,7 +10,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, "Email is required"],
     unique: true,
-    lowercase: true
+    lowercase: true,
+    index:"true"
   },
   phone: {
     type: String,
@@ -24,14 +25,17 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["admin", "shopkeeper", "customer"],
-    required: true
+    required: true,
+    index:"true",
   },
   shopkeeperId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: function () {
       return this.role === "customer";
-    }
+    },
+    index:"true",
+    
   }
 }, { timestamps: true });
 

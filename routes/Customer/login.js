@@ -1,35 +1,74 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import jwt from 'jsonwebtoken';
-import adminUser from "../../model/AllUserSchema.js";
+import jwt from "jsonwebtoken";
+import rateLimit from "express-rate-limit";
+import Users from "../../model/AllUserSchema.js";
 
 const router = express.Router();
 
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 50,
+});
+
+router.post("/login", limiter, async (req, res) => {
   try {
-    if (!email || !password)
-      return res.status(404).json({ message: "Fill the info Perfectly!!" });
-    const exist = await adminUser.findOne({ email });
-    if (!exist) return res.status(404).json({ message: "User not exist!" });
-    const passwordChecking = await bcrypt.compare(password, exist.password);
-    if (!passwordChecking)
-      return res.status(400).json({ message: "Password incorrect!" });
+    let { email, password } = req.body;
 
+    email = email?.trim().toLowerCase();
 
-    const token = jwt.sign({
-      id:exist._id,
-      role:exist.role,
-      shopkeeperId:exist.shopkeeperId,
-    },
-    
-    process.env.JWT_SECRET,
-    {expiresIn:process.env.JWT_EXPIRE}
-  )
-      
-    res.status(201).json({message:"user login successfully",token ,userId:exist._id,role:exist.role,CustomerName:exist.username})
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password required",
+      });
+    }
+
+    const user = await Users.findOne({ email }).select("+password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user._id.toString(),
+        role: user.role,
+        shopkeeperId: user.shopkeeperId || null,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRE || "7d",
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "User login successfully",
+      token,
+      userId: user._id,
+      role: user.role,
+      customerName: user.username,
+    });
+
   } catch (err) {
-    console.log(err.message);
+    console.error(err.message);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
 

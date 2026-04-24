@@ -1,28 +1,49 @@
 import express from "express";
 import mongoose from "mongoose";
-import user from "../../model/AllUserSchema.js";
+import Users from "../../model/AllUserSchema.js";
 
 const router = express.Router();
 
-router.put("/renameCustomer", async (req, res) => {
+router.put("/customer/:id", async (req, res) => {
   try {
-    const { id, newName } = req.body;
+    const { id } = req.params;
+    const { newName } = req.body;
 
-    const Customer = await user.findOneAndUpdate(
-      { _id: id, role: "customer" },
-      { $set: { username: newName } },
+    if (req.user.role !== "shopkeeper") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+
+    if (!newName || newName.trim().length < 2) {
+      return res.status(400).json({ message: "Invalid name" });
+    }
+
+    const updatedCustomer = await Users.findOneAndUpdate(
+      {
+        _id: id,
+        shopkeeperId: req.user.shopId,
+        role: "customer"
+      },
+      { $set: { username: newName.trim() } },
       { new: true }
     );
 
-    if (!Customer) {
-      return res.status(404).json({ message: "User Not Found!" });
+    if (!updatedCustomer) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res
-      .status(200)
-      .json({ message: "Rename Successfully!!", updateName: Customer });
+    res.status(200).json({
+      success: true,
+      message: "Rename successful",
+      username: updatedCustomer.username
+    });
+
   } catch (err) {
-    res.status(500).json({ message: "Server Error" });
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
